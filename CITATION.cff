@@ -1,7 +1,6 @@
 cff-version: 1.2.0
-message: "If you use DAMPyF in your research, please cite the software and the associated publication."
+message: "If you use DAMPyF in your research, please cite the associated paper."
 title: "DAMPyF"
-abstract: "A Python implementation of the dissipation-assisted matrix product factorisation method for open-system dynamics."
 authors:
   - family-names: "Lorenzoni"
     given-names: "Nicola"
@@ -11,10 +10,6 @@ authors:
     given-names: "Martin B."
 license: "GPL-3.0-only"
 repository-code: "https://github.com/NicolaLorenzoni/DAMPyF"
-
-# Add the software release information before publishing a tagged release:
-# version: "TO-BE-ADDED"
-# date-released: "YYYY-MM-DD"
 
 preferred-citation:
   type: article
@@ -27,12 +22,4 @@ preferred-citation:
     - family-names: "Plenio"
       given-names: "Martin B."
   year: 2026
-
-  # Replace or uncomment the following fields after publication:
-  # journal: "SciPost Physics Codebases"
-  # doi: "TO-BE-ADDED"
-  # volume: "TO-BE-ADDED"
-  # issue: "TO-BE-ADDED"
-  # start: "TO-BE-ADDED"
-  # end: "TO-BE-ADDED"
-  # url: "TO-BE-ADDED"
+  status: in-preparation
