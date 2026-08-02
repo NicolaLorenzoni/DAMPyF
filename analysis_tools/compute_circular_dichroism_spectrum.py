@@ -138,13 +138,15 @@ def load_dipoles(system_input_folder, filename, num_sites, label):
     if not file_path.exists():
         raise FileNotFoundError(f"Could not find {file_path}")
 
-    dipoles = np.loadtxt(file_path, dtype=float)
+    dipoles = np.loadtxt(file_path, dtype=complex)
 
     if dipoles.ndim == 1:
         dipoles = dipoles.reshape(1, -1)
 
     if dipoles.shape != (num_sites, 3):
         raise ValueError(f"{label} dipoles must have shape ({num_sites}, 3), got {dipoles.shape}.")
+    if not np.all(np.isfinite(dipoles)):
+        raise ValueError(f"{label} dipoles contain non-finite values.")
 
     print(f"Loaded {file_path}")
     return dipoles
@@ -165,13 +167,13 @@ def compute_circular_dichroism_correlation(optical_coherence, electric_dipoles, 
     """
     Compute the electric-magnetic correlation entering the CD signal.
 
-    This follows the same convention as the absorption correlation,
+    The isotropic rotational averages are
 
-        C_abs(t) = sum_{i,j} dot(conj(mu_i), mu_j) optical_coherence[t,i,j],
+        C_abs(t) = (1/3) sum_{i,j} dot(conj(mu_i), mu_j) optical_coherence[t,i,j],
 
-    but with the first electric dipole replaced by the magnetic dipole,
+    and, with the first electric dipole replaced by the magnetic dipole,
 
-        C_CD(t) = sum_{i,j} dot(conj(m_i), mu_j) optical_coherence[t,i,j].
+        C_CD(t) = (1/3) sum_{i,j} dot(conj(m_i), mu_j) optical_coherence[t,i,j].
     """
     num_times = optical_coherence.shape[0]
     num_sites = optical_coherence.shape[1]
@@ -185,7 +187,7 @@ def compute_circular_dichroism_correlation(optical_coherence, electric_dipoles, 
                 for axis in range(3):
                     factor += np.conjugate(magnetic_dipoles[initial_index, axis]) * electric_dipoles[final_index, axis]
                 value += factor * optical_coherence[time_index, initial_index, final_index]
-        circular_dichroism_correlation[time_index] = value
+        circular_dichroism_correlation[time_index] = value / 3.0
 
     return circular_dichroism_correlation
 

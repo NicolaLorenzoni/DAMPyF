@@ -80,7 +80,37 @@ def _write_pseudomode_parameters(file_handle, pseudomodes):
     return
 
 
-def save_simulation_data(params, system, pseudomodes, rho_sys_initial, system_output_file):
+@ray.remote(num_cpus=1)
+def _maximum_bond_dimension_worker(density_mps):
+    """
+        Return the maximum bond dimension of one MPS.
+    """
+    return max(density_mps.bond_dimensions, default=1)
+
+
+def maximum_state_bond_dimension(state_refs, params):
+    """
+        Return the maximum bond dimension in the current MPS collection.
+    """
+    if params.simulation_mode == "energy_transfer":
+        density_mps_refs = list(state_refs)
+    else:
+        density_mps_refs = [density_mps_ref for state_row in state_refs for density_mps_ref in state_row]
+
+    bond_dimensions = ray.get([_maximum_bond_dimension_worker.remote(density_mps_ref) for density_mps_ref in density_mps_refs])
+    return max(bond_dimensions, default=1)
+
+
+def save_simulation_data(
+    params,
+    system,
+    pseudomodes,
+    rho_sys_initial,
+    system_output_file,
+    elapsed_time_seconds,
+    final_maximum_bond_dimension,
+    maximum_bond_dimension_reached,
+):
     """
         Save a text file with simulation input data and configuration parameters.
     """
@@ -95,6 +125,9 @@ def save_simulation_data(params, system, pseudomodes, rho_sys_initial, system_ou
         file_handle.write(f"dtdata={params.dtdata}\n")
         file_handle.write(f"trotter_order={params.trotter_order}\n")
         file_handle.write(f"BD={params.BD}\n")
+        file_handle.write(f"elapsed_time_seconds={elapsed_time_seconds:.6f}\n")
+        file_handle.write(f"final_maximum_bond_dimension={final_maximum_bond_dimension}\n")
+        file_handle.write(f"maximum_bond_dimension_reached={maximum_bond_dimension_reached}\n")
         file_handle.write(f"initial_state_type={params.initial_state_type}\n")
         if params.initial_state_type == "backup":
             file_handle.write(f"backup_identifier={params.backup_identifier}\n")

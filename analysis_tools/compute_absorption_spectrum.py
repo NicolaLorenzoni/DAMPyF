@@ -136,10 +136,15 @@ def load_dipoles(system_input_folder, filename, num_sites):
     if not file_path.exists():
         raise FileNotFoundError(f"Could not find {file_path}")
 
-    dipoles = np.loadtxt(file_path, dtype=float)
+    dipoles = np.loadtxt(file_path, dtype=complex)
+
+    if dipoles.ndim == 1:
+        dipoles = dipoles.reshape(1, -1)
 
     if dipoles.shape != (num_sites, 3):
         raise ValueError(f"Dipoles must have shape ({num_sites}, 3), got {dipoles.shape}.")
+    if not np.all(np.isfinite(dipoles)):
+        raise ValueError("Dipoles contain non-finite values.")
 
     print(f"Loaded {file_path}")
     return dipoles
@@ -160,8 +165,8 @@ def compute_dipole_correlation(optical_coherence, dipoles):
     """
     Compute the dipole correlation from optical-coherence dynamics.
 
-    The convention follows the old absorption code:
-    C(t) = sum_{i,j} dot(conj(mu_i), mu_j) optical_coherence[t,i,j].
+    The isotropic rotational average is
+    C(t) = (1/3) sum_{i,j} dot(conj(mu_i), mu_j) optical_coherence[t,i,j].
     """
     num_times = optical_coherence.shape[0]
     num_sites = optical_coherence.shape[1]
@@ -175,7 +180,7 @@ def compute_dipole_correlation(optical_coherence, dipoles):
                 for axis in range(3):
                     factor += np.conjugate(dipoles[initial_index, axis]) * dipoles[final_index, axis]
                 value += factor * optical_coherence[time_index, initial_index, final_index]
-        dipole_correlation[time_index] = value
+        dipole_correlation[time_index] = value / 3.0
 
     return dipole_correlation
 

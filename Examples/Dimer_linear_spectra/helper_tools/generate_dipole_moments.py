@@ -25,7 +25,7 @@ magnetic_dipoles_output_filename = "dimer_magnetic_dipoles.txt"
 
 
 # Electric transition dipoles.
-electric_dipoles = np.zeros((N, 3), dtype=float)
+electric_dipoles = np.zeros((N, 3), dtype=complex)
 
 electric_dipoles[0] = [1.0, 0.0, 0.0]
 electric_dipoles[1] = [0.0, 1.0, 0.0]
@@ -42,7 +42,7 @@ magnetic_dipole_method = "direct"
 
 
 # Magnetic transition dipoles used when magnetic_dipole_method = "direct".
-magnetic_dipoles = np.zeros((N, 3), dtype=float)
+magnetic_dipoles = np.zeros((N, 3), dtype=complex)
 
 magnetic_dipoles[0] = [-1.0, 0.0, 1.0]
 magnetic_dipoles[1] = [0.0, 1.0, -1.0]
@@ -73,6 +73,32 @@ electric_dipoles_output_file = output_folder / electric_dipoles_output_filename
 magnetic_dipoles_output_file = output_folder / magnetic_dipoles_output_filename
 
 
+def format_dipole_component(value):
+    """
+        Format one real or complex dipole component.
+    """
+    value = complex(value)
+
+    if value.imag == 0.0:
+        return f"{value.real:.10f}"
+
+    return f"{value.real:.10f}{value.imag:+.10f}j"
+
+
+def write_dipole_file(output_file, dipoles, header):
+    """
+        Write a three-column real or complex dipole file.
+    """
+    with open(output_file, "w") as file_handle:
+        file_handle.write(f"# {header}\n")
+
+        for dipole in dipoles:
+            components = [format_dipole_component(component) for component in dipole]
+            file_handle.write(" ".join(components) + "\n")
+
+    return
+
+
 # Consistency checks.
 if electric_dipoles.shape != (N, 3):
     raise ValueError("electric_dipoles must have shape (N, 3).")
@@ -101,8 +127,8 @@ if not np.all(np.isfinite(magnetic_dipoles)):
 electric_header = "x y z components of electric transition dipoles"
 magnetic_header = "x y z components of magnetic transition dipoles"
 
-np.savetxt(electric_dipoles_output_file, electric_dipoles, fmt="% .10f", header=electric_header)
-np.savetxt(magnetic_dipoles_output_file, magnetic_dipoles, fmt="% .10f", header=magnetic_header)
+write_dipole_file(electric_dipoles_output_file, electric_dipoles, electric_header)
+write_dipole_file(magnetic_dipoles_output_file, magnetic_dipoles, magnetic_header)
 
 print(f"Wrote {electric_dipoles_output_file.name} in {output_folder}")
 print(f"Wrote {magnetic_dipoles_output_file.name} in {output_folder}")

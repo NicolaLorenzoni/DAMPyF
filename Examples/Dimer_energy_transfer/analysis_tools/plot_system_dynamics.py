@@ -5,6 +5,13 @@ Run this script from any folder. It reads data from the output_data folder.
 """
 
 from pathlib import Path
+import sys
+
+script_folder = Path(__file__).resolve().parent
+project_folder = script_folder.parent
+sys.path.insert(0, str(project_folder))
+
+from dampf_modules import unit_conventions as units
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,8 +24,8 @@ plot_basis = "site"  # Options: "site", "eigenstate"
 rho_file = "rho_system_dimer_test_simulation.npz"
 rho_file_2 = "rho_system_dimer_test_simulation_2.npz"
 
-label_1 = "dataset 1"
-label_2 = "dataset 2"
+label_1 = "BD=5,  dt=1.0 fs"
+label_2 = "BD=15, dt=0.5 fs"
 
 # Needed only if plot_basis = "eigenstate".
 system_hamiltonian_file = "dimer_system_hamiltonian.txt"
@@ -192,7 +199,7 @@ def plot_population_panel(
             fr"\epsilon_{{{index + 1}}}\rangle$"
         )
 
-    ax.set_xlabel("Time")
+    ax.set_xlabel("Time [fs]")
     ax.grid(True)
     ax.legend()
 
@@ -234,7 +241,7 @@ def plot_coherence_panel(
         )
 
     ax.set_title(fr"${component_label}\left\{{{matrix_element}\right\}}$")
-    ax.set_xlabel("Time")
+    ax.set_xlabel("Time [fs]")
     ax.grid(True)
     ax.legend()
 
@@ -337,7 +344,6 @@ def plot_system_dynamics(
 # =============================================================================
 # Main script
 # =============================================================================
-script_folder = Path(__file__).resolve().parent
 project_folder = script_folder.parent
 output_folder = project_folder / "output_data"
 system_input_folder = project_folder / "input_data" / "system"
@@ -371,9 +377,9 @@ selected_population_indices = build_population_index_list(num_states, population
 selected_coherence_pairs = build_coherence_pair_list(num_states, coherence_pairs)
 
 plot_system_dynamics(
-    times,
+    times/units.FEMTOSECOND_TO_SPECTROSCOPIC_TIME,
     rho_data,
-    times_2,
+    times_2/units.FEMTOSECOND_TO_SPECTROSCOPIC_TIME,
     rho_data_2,
     selected_population_indices,
     selected_coherence_pairs,

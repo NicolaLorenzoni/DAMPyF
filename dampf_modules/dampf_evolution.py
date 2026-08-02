@@ -35,7 +35,7 @@ def compressed_linear_combination(terms, zero_template, compression_tol, BD, com
 
 
 @ray.remote(num_cpus=1)
-def mps_update_worker(density_mps, update_mpo, normalization=1.0, conjugate_result=False):
+def mps_update_worker(density_mps, update_mpo, normalization=1.0, conjugate_result=False, return_bond_dimension=False):
     """
         Apply one MPO to one MPS component.
     """
@@ -49,6 +49,9 @@ def mps_update_worker(density_mps, update_mpo, normalization=1.0, conjugate_resu
 
     if conjugate_result:
         updated_mps = updated_mps.conj()
+
+    if return_bond_dimension:
+        return updated_mps, max(updated_mps.bond_dimensions, default=1)
 
     return updated_mps
 
@@ -194,34 +197,48 @@ def evolve(state_refs, params, operator_refs, system_index_maps, normalization=1
     """
     current_normalization = normalization
     data_timesteps = int(round(params.dtdata / params.dt))
+    bond_dimension_refs = []
 
     for _ in range(data_timesteps):
         if params.simulation_mode == "energy_transfer":
             for ind in range(system_index_maps.num_stored_indices):
-                state_refs[ind] = mps_update_worker.remote(state_refs[ind], operator_refs.local_update_mpo_refs_1[ind], current_normalization)
+                state_refs[ind], bond_dimension_ref = mps_update_worker.options(num_returns=2).remote(
+                    state_refs[ind], operator_refs.local_update_mpo_refs_1[ind], current_normalization, False, True
+                )
+                bond_dimension_refs.append(bond_dimension_ref)
             current_normalization = 1.0
         else:
             for initial_index in range(system_index_maps.N):
                 for current_index in range(system_index_maps.N):
-                    state_refs[initial_index][current_index] = mps_update_worker.remote(
+                    state_refs[initial_index][current_index], bond_dimension_ref = mps_update_worker.options(num_returns=2).remote(
                         state_refs[initial_index][current_index],
                         operator_refs.local_update_mpo_refs_1[current_index],
                         1.0,
+                        False,
+                        True,
                     )
+                    bond_dimension_refs.append(bond_dimension_ref)
 
         state_refs = system_update(state_refs, system_index_maps, operator_refs, params)
 
         if params.trotter_order == "second":
             if params.simulation_mode == "energy_transfer":
                 for ind in range(system_index_maps.num_stored_indices):
-                    state_refs[ind] = mps_update_worker.remote(state_refs[ind], operator_refs.local_update_mpo_refs_2[ind], 1.0)
+                    state_refs[ind], bond_dimension_ref = mps_update_worker.options(num_returns=2).remote(
+                        state_refs[ind], operator_refs.local_update_mpo_refs_2[ind], 1.0, False, True
+                    )
+                    bond_dimension_refs.append(bond_dimension_ref)
             else:
                 for initial_index in range(system_index_maps.N):
                     for current_index in range(system_index_maps.N):
-                        state_refs[initial_index][current_index] = mps_update_worker.remote(
+                        state_refs[initial_index][current_index], bond_dimension_ref = mps_update_worker.options(num_returns=2).remote(
                             state_refs[initial_index][current_index],
                             operator_refs.local_update_mpo_refs_2[current_index],
                             1.0,
+                            False,
+                            True,
                         )
+                        bond_dimension_refs.append(bond_dimension_ref)
 
-    return state_refs
+    maximum_bond_dimension_reached = max(ray.get(bond_dimension_refs), default=1)
+    return state_refs, maximum_bond_dimension_reached

@@ -21,7 +21,7 @@ dtdata = 1.0*dt                                         # Data collection timest
 backuptime_seconds = 5*60*60                            # Backup time interval in seconds
 trotter_order = "second"                                # Options: "first" (local error O(dt^2)), "second" (local error O(dt^3)).
 
-BD = 15                              # Maximum bond dimension
+BD = 5                              # Maximum bond dimension
 compression_tol = 1.0e-8             # MPS single-tensor compression tolerance
 compression_svd_method = "eig"       # Options: "standard", "qr", "eig". Eig does not properly capture singular values below sqrt(machine precision).
 system_update_coeff_tol = 1.0e-8     # System evolution operator coefficients threshold

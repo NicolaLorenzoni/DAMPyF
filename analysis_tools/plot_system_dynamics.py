@@ -5,6 +5,13 @@ Run this script from any folder. It reads data from the output_data folder.
 """
 
 from pathlib import Path
+import sys
+
+script_folder = Path(__file__).resolve().parent
+project_folder = script_folder.parent
+sys.path.insert(0, str(project_folder))
+
+from dampf_modules import unit_conventions as units
 
 import matplotlib.pyplot as plt
 import numpy as np

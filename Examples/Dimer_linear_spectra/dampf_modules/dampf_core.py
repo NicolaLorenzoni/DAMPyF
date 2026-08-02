@@ -29,7 +29,7 @@ from dampf_modules.dampf_initial_state   import initialize_state_refs
 from dampf_modules.dampf_model           import prepare_ray_operator_refs
 from dampf_modules.dampf_observables     import reduced_system_density_matrix, optical_coherence_matrix
 from dampf_modules.dampf_parallelization import initialize_ray, shutdown_ray
-from dampf_modules.dampf_storage         import save_system_data, save_simulation_data, save_checkpoint
+from dampf_modules.dampf_storage         import save_system_data, save_simulation_data, save_checkpoint, maximum_state_bond_dimension
 from dampf_modules.dampf_structures      import generate_system_index_maps
 from dampf_modules.dampf_utils           import check_user_parameters, print_summaries
 
@@ -45,6 +45,7 @@ def run_propagation(system, pseudomodes, system_index_maps, operator_refs, state
     backup_clock = timelib.perf_counter()
 
     num_data_steps = int(round(p.time / p.dtdata))
+    maximum_bond_dimension_reached = 1
 
     for td in range(num_data_steps + 1):
         progress_message = f"Timestep {td} of {num_data_steps}"
@@ -71,7 +72,8 @@ def run_propagation(system, pseudomodes, system_index_maps, operator_refs, state
     
         step_clock = timelib.perf_counter()
         # Evolution between data collection steps
-        state_refs = evolve(state_refs, p, operator_refs, system_index_maps, normalization)
+        state_refs, interval_maximum_bond_dimension = evolve(state_refs, p, operator_refs, system_index_maps, normalization)
+        maximum_bond_dimension_reached = max(maximum_bond_dimension_reached, interval_maximum_bond_dimension)
         # Printing computational time required for the evolution step
         elapsed_time = timelib.perf_counter() - step_clock
         progress_message = f"Timestep {td + 1} of {num_data_steps} | time per output step: {elapsed_time:.6f} s"
@@ -86,9 +88,10 @@ def run_propagation(system, pseudomodes, system_index_maps, operator_refs, state
     print()
     # Data storage
     system_output_file = save_system_data(times, system_density_matrix_list, p)
-    save_simulation_data(p, system, pseudomodes, rho_sys_initial, system_output_file)
+    final_maximum_bond_dimension = maximum_state_bond_dimension(state_refs, p)
+    maximum_bond_dimension_reached = max(maximum_bond_dimension_reached, final_maximum_bond_dimension)
 
-    return
+    return system_output_file, final_maximum_bond_dimension, maximum_bond_dimension_reached
 
 def dampf():
     """
@@ -122,10 +125,23 @@ def dampf():
     print("--------------------------")
     start = timelib.perf_counter()
     try:
-        run_propagation(system, pseudomodes, system_index_maps, operator_refs, state_refs, rho_sys_initial)
+        system_output_file, final_maximum_bond_dimension, maximum_bond_dimension_reached = run_propagation(
+            system, pseudomodes, system_index_maps, operator_refs, state_refs, rho_sys_initial
+        )
     finally:
         shutdown_ray()
-    print(f"Total time: {timelib.perf_counter() - start:.6f} s")
+    elapsed_time_seconds = timelib.perf_counter() - start
+    save_simulation_data(
+        p,
+        system,
+        pseudomodes,
+        rho_sys_initial,
+        system_output_file,
+        elapsed_time_seconds,
+        final_maximum_bond_dimension,
+        maximum_bond_dimension_reached,
+    )
+    print(f"Total time: {elapsed_time_seconds:.6f} s")
 
     return
 

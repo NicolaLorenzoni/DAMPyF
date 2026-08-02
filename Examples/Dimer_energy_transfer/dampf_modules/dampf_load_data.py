@@ -48,11 +48,16 @@ def read_dipoles_file(filename, N, label):
     if not os.path.isfile(path):
         raise FileNotFoundError(f"{label} dipoles file not found: {path}")
 
-    dipoles = np.loadtxt(path, dtype=float)
+    dipoles = np.loadtxt(path, dtype=complex)
+
+    if dipoles.ndim == 1:
+        dipoles = dipoles.reshape(1, -1)
 
     # Consistency check.
     if dipoles.shape != (N, 3):
         raise ValueError(f"{label} dipoles must have shape ({N}, 3), got {dipoles.shape}.")
+    if not np.all(np.isfinite(dipoles)):
+        raise ValueError(f"{label} dipoles contain non-finite values.")
 
     return dipoles
 
