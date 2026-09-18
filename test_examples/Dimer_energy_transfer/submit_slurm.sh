@@ -26,13 +26,6 @@
 ###############################################
 
 
-#### LOADING ENVIRONMENT CONTAINING RAY #################
-# Load modules or your own conda environment here.
-source ~/.bashrc
-conda activate DAMPyF_environment
-#########################################################
-
-
 #### NUMERICAL THREADING SETTINGS ########################
 # Each Ray worker should use one BLAS/OpenMP thread.
 # Otherwise 48 Ray workers could each spawn 48 threads.
@@ -61,7 +54,6 @@ fi
 
 
 #### LAUNCHING CODE ######################################
-# Install DAMPyF in this environment before submitting: python -m pip install -e "/path/to/DAMPyF"
 # In run_simulation.py, set execution_mode="slurm" in DampfConfig.
 # Submit from this example folder: sbatch submit_slurm.sh
 python "${SLURM_SUBMIT_DIR}/run_simulation.py" > "${SLURM_JOB_NAME}_${SLURM_JOB_ID}.log" 2>&1
