@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dampyf"
+version = "1.0.0"
+description = "Dissipation-assisted matrix product factorisation for structured open quantum systems"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Nicola Lorenzoni" },
+    { name = "Susana F. Huelga" },
+    { name = "Martin B. Plenio" },
+]
+dependencies = [
+    "h5py",
+    "matplotlib",
+    "numpy",
+    "psutil",
+    "ray",
+    "scipy",
+]
+
+[tool.setuptools.packages.find]
+include = ["dampyf", "dampyf.*"]
+
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"

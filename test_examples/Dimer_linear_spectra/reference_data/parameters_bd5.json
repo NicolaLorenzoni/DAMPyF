@@ -1,0 +1,112 @@
+{
+  "reference_file": "optical_coherence_bd5.npz",
+  "source_archive": "Dimer_linear_spectra.zip",
+  "source_result": "Dimer_linear_spectra/output_data/optical_coherence_dimer_test_simulation_dt_1.0_BD_5.npz",
+  "source_run_log": "Dimer_linear_spectra/output_data/simulation_data_dimer_test_simulation_dt_1.0_BD_5.txt",
+  "source_result_sha256": "17f29450221ae2a2a2644799694abafcb1b05cee5b2a475b3a88ecb63799f5f8",
+  "simulation_mode": "linear_spectra",
+  "time_units": "Stored times are spectroscopic times: time_fs * femtosecond_to_spectroscopic_time.",
+  "femtosecond_to_spectroscopic_time": 0.00018836515673088534,
+  "energy_units": "cm^-1",
+  "duration_fs": 1000.0,
+  "time_step_fs": 1.0,
+  "data_time_step_fs": 1.0,
+  "maximum_bond_dimension": 5,
+  "trotter_order": "second",
+  "compression_tolerance": 1e-08,
+  "compression_svd_method": "eig",
+  "system_update_coefficient_tolerance": 1e-08,
+  "dynamic_trace_normalization": false,
+  "hamiltonian": [
+    [
+      1000.0,
+      100.0
+    ],
+    [
+      100.0,
+      1200.0
+    ]
+  ],
+  "electric_dipoles": [
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ]
+  ],
+  "magnetic_dipoles": [
+    [
+      -1.0,
+      0.0,
+      1.0
+    ],
+    [
+      0.0,
+      1.0,
+      -1.0
+    ]
+  ],
+  "same_local_environment": true,
+  "local_pseudomodes": {
+    "frequencies": [
+      400.0,
+      500.0,
+      600.0,
+      700.0,
+      800.0
+    ],
+    "damping_rates": [
+      10.0,
+      20.0,
+      15.0,
+      30.0,
+      10.0
+    ],
+    "couplings": [
+      20.0,
+      40.0,
+      70.0,
+      70.0,
+      50.0
+    ],
+    "thermal_energies": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      20.0
+    ],
+    "fock_dimensions": [
+      4,
+      4,
+      4,
+      4,
+      4
+    ]
+  },
+  "initial_state_type": null,
+  "optical_coherence_axes": [
+    "time",
+    "initial_electronic_index",
+    "current_electronic_index"
+  ],
+  "data_shape": [
+    1001,
+    2,
+    2
+  ],
+  "parameter_provenance": "Duration, propagation/output steps, bond dimension, Trotter order, Hamiltonian and local modes are confirmed by the selected run log/data. Compression settings are taken from the supplied configuration snapshot, which has dt=0.5 fs and BD=10. Dipoles come from the supplied input files; the original optical propagation did not use dipoles and the full coherence matrix is contracted with them during analysis.",
+  "comparison_checks": [
+    {
+      "dataset": "dt_0.5_BD_10",
+      "comparison": "All complex optical-coherence elements at shared output times; no interpolation.",
+      "maximum_absolute_difference": 0.003639497915521596,
+      "rms_absolute_difference": 0.0014583287670535613
+    }
+  ]
+}

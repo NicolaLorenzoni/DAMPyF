@@ -1,0 +1,101 @@
+{
+  "reference_file": "rho_system_bd20.npz",
+  "source_archive": "Dimer_energy_transfer.zip",
+  "source_result": "Dimer_energy_transfer/output_data/rho_system_dimer_test_simulation_dt_1.0_BD_20.npz",
+  "source_run_log": "Dimer_energy_transfer/output_data/simulation_data_dimer_test_simulation_dt_1.0_BD_20.txt",
+  "source_result_sha256": "5cad5bcc0beae9274033c476b1db7c008a1bca404f9757bd9fd2728b174bdb15",
+  "simulation_mode": "energy_transfer",
+  "time_units": "Stored times are spectroscopic times: time_fs * femtosecond_to_spectroscopic_time.",
+  "femtosecond_to_spectroscopic_time": 0.00018836515673088534,
+  "energy_units": "cm^-1",
+  "duration_fs": 1000.0,
+  "time_step_fs": 1.0,
+  "data_time_step_fs": 1.0,
+  "maximum_bond_dimension": 20,
+  "trotter_order": "second",
+  "compression_tolerance": 1e-08,
+  "compression_svd_method": "eig",
+  "system_update_coefficient_tolerance": 1e-08,
+  "dynamic_trace_normalization": true,
+  "hamiltonian": [
+    [
+      1000.0,
+      100.0
+    ],
+    [
+      100.0,
+      1200.0
+    ]
+  ],
+  "same_local_environment": true,
+  "local_pseudomodes": {
+    "frequencies": [
+      400.0,
+      500.0,
+      600.0,
+      700.0,
+      800.0
+    ],
+    "damping_rates": [
+      10.0,
+      20.0,
+      15.0,
+      30.0,
+      10.0
+    ],
+    "couplings": [
+      20.0,
+      40.0,
+      70.0,
+      70.0,
+      50.0
+    ],
+    "thermal_energies": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      20.0
+    ],
+    "fock_dimensions": [
+      4,
+      4,
+      4,
+      4,
+      4
+    ]
+  },
+  "initial_state_type": "eigenstate",
+  "initial_eigenstate": 1,
+  "eigenstate_indexing": "Zero-based, ordered by increasing energy; index 1 is the higher-energy dimer exciton.",
+  "initial_system_density_matrix": [
+    [
+      0.1464466094067262,
+      0.35355339059327373
+    ],
+    [
+      0.35355339059327373,
+      0.8535533905932738
+    ]
+  ],
+  "data_shape": [
+    1001,
+    2,
+    2
+  ],
+  "parameter_provenance": "Duration, propagation/output steps, bond dimension, Trotter order, Hamiltonian, local modes and initial density are confirmed by the selected run log/data. Compression settings are taken from the supplied configuration snapshot. That snapshot has dt=0.5 fs; it is not used to set the selected reference step.",
+  "comparison_checks": [
+    {
+      "dataset": "dt_1.0_BD_15",
+      "comparison": "All density-matrix elements at shared output times; no interpolation.",
+      "maximum_absolute_difference": 5.345892827419784e-05,
+      "rms_absolute_difference": 2.9881313177916062e-05
+    },
+    {
+      "dataset": "dt_0.5_BD_20",
+      "comparison": "All density-matrix elements at shared output times; no interpolation.",
+      "maximum_absolute_difference": 8.181903941201995e-05,
+      "rms_absolute_difference": 4.400074896512719e-05
+    }
+  ]
+}
